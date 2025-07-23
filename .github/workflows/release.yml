@@ -158,10 +158,7 @@ jobs:
         VERSION="${{ github.event.inputs.version }}"
         TARBALL_NAME="mollie-react-$VERSION.tgz"
         
-        # Rename the tarball
-        mv mollie-react-*.tgz "$TARBALL_NAME"
-        
-        # Upload to the release using gh CLI
+        # Upload to the release using gh CLI (npm pack already creates the correct filename)
         gh release upload "v$VERSION" "$TARBALL_NAME"
         
         echo "✅ Uploaded $TARBALL_NAME to release v$VERSION"
