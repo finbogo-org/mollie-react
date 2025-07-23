@@ -1,0 +1,1 @@
+{"version":3,"file":"useCreateToken.d.ts","sourceRoot":"","sources":["../../src/hooks/useCreateToken.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,WAAW,EAAE,MAAM,iBAAiB,CAAC;AAE9C,MAAM,WAAW,oBAAoB;IACnC,WAAW,EAAE,MAAM,OAAO,CAAC,WAAW,CAAC,CAAC;IACxC,eAAe,EAAE,OAAO,CAAC;IACzB,UAAU,EAAE,MAAM,GAAG,IAAI,CAAC;CAC3B;AAED,eAAO,MAAM,cAAc,QAAO,oBAqCjC,CAAC"}

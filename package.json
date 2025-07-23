@@ -1,0 +1,50 @@
+{
+  "name": "mollie-react",
+  "version": "1.0.0",
+  "description": "A TypeScript React library for integrating Mollie payment components",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mollie",
+    "payment",
+    "react",
+    "typescript",
+    "components",
+    "payments",
+    "credit-card",
+    "iframe"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/mollie-react.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/mollie-react/issues"
+  },
+  "homepage": "https://github.com/your-username/mollie-react#readme",
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}
