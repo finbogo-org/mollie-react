@@ -1,0 +1,14 @@
+# Source files
+src/
+examples/
+
+# Config files
+tsconfig*.json
+.gitignore
+
+# Development files
+*.tsbuildinfo
+.DS_Store
+node_modules/
+
+# Keep only the built dist folder

@@ -17,6 +17,12 @@ A TypeScript React library for integrating Mollie payment components into your R
 npm install mollie-react
 ```
 
+## Requirements
+
+- React 16.8+ (hooks support)
+- TypeScript 4.1+ (optional, but recommended)
+- Node.js 14+ (for build tools)
+
 ## Quick Start
 
 ### 1. Wrap your app with MollieProvider
