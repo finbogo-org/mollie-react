@@ -64,6 +64,7 @@ jobs:
         npm run typecheck
         npm run build
         npm run test
+        npm run test:package
         echo "✅ All tests passed"
     
     - name: Update CHANGELOG
