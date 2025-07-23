@@ -15,7 +15,10 @@ setupMockMollie();
 describe('MollieComponentBase', () => {
   beforeEach(() => {
     mockUseMollieComponent.mockReturnValue({
+      component: {} as any,
       containerRef: { current: null },
+      mount: jest.fn(),
+      unmount: jest.fn(),
       isReady: true,
       error: null
     });
@@ -50,7 +53,10 @@ describe('MollieComponentBase', () => {
   it('calls onReady when component is ready', () => {
     const onReady = jest.fn();
     mockUseMollieComponent.mockReturnValue({
+      component: {} as any,
       containerRef: { current: null },
+      mount: jest.fn(),
+      unmount: jest.fn(),
       isReady: true,
       error: null
     });
@@ -67,7 +73,10 @@ describe('MollieComponentBase', () => {
     const errorMessage = 'Test error';
     
     mockUseMollieComponent.mockReturnValue({
+      component: {} as any,
       containerRef: { current: null },
+      mount: jest.fn(),
+      unmount: jest.fn(),
       isReady: false,
       error: errorMessage
     });
