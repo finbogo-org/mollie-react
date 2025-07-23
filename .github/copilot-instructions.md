@@ -15,3 +15,4 @@ The concept is we will get a token back from Mollie that we will then need to se
 This project will be structured to allow easy addition of new payment methods as Mollie supports them. The components will be designed to be reusable and configurable, allowing developers to customize the appearance and behaviour of the payment methods. https://docs.mollie.com/docs/styling-mollie-components outlines the styling system in place ans how to use it.
 
 
+All code should have tests. we use jest and aim for 90% coverage where possible. 

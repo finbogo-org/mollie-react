@@ -79,6 +79,26 @@ describe('useCreateToken', () => {
     expect(result.current.tokenError).toBe(errorMessage);
   });
 
+  it('handles mollie result with error', async () => {
+    const errorMessage = 'Invalid card details';
+    const mockResultWithError = { 
+      error: { message: errorMessage } 
+    };
+    mockCreateToken.mockResolvedValue(mockResultWithError);
+
+    const { result } = renderHook(() => useCreateToken(), { wrapper });
+
+    let tokenResult: any;
+    await act(async () => {
+      tokenResult = await result.current.createToken();
+    });
+
+    expect(mockCreateToken).toHaveBeenCalled();
+    expect(tokenResult).toEqual(mockResultWithError);
+    expect(result.current.isCreatingToken).toBe(false);
+    expect(result.current.tokenError).toBe(errorMessage);
+  });
+
   it('sets loading state during token creation', async () => {
     let resolveToken: (value: any) => void;
     const tokenPromise = new Promise(resolve => {
