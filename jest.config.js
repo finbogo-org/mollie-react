@@ -3,15 +3,13 @@ module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.(ts|tsx)',
+    '<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx)',
     '<rootDir>/src/**/?(*.)(test|spec).(ts|tsx)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react-jsx'
-      }
+      tsconfig: 'tsconfig.test.json'
     }]
   },
   collectCoverageFrom: [

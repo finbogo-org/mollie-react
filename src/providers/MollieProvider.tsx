@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 import { MollieInstance, MollieOptions, MollieConstructor } from '../types/mollie';
 
 export interface MollieContextValue {
@@ -28,11 +28,14 @@ export const MollieProvider: React.FC<MollieProviderProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Memoize options to prevent unnecessary re-renders
+  const memoizedOptions = useMemo(() => options, [JSON.stringify(options)]);
+
   useEffect(() => {
     // Check if script is already loaded
     if (window.Mollie) {
       try {
-        const mollieInstance = window.Mollie(profileId, options);
+        const mollieInstance = window.Mollie(profileId, memoizedOptions);
         setMollie(mollieInstance);
         setIsLoading(false);
         return;
@@ -50,7 +53,7 @@ export const MollieProvider: React.FC<MollieProviderProps> = ({
       const handleLoad = () => {
         try {
           if (window.Mollie) {
-            const mollieInstance = window.Mollie(profileId, options);
+            const mollieInstance = window.Mollie(profileId, memoizedOptions);
             setMollie(mollieInstance);
           } else {
             setError('Mollie script loaded but Mollie constructor not available');
@@ -83,7 +86,7 @@ export const MollieProvider: React.FC<MollieProviderProps> = ({
     const handleLoad = () => {
       try {
         if (window.Mollie) {
-          const mollieInstance = window.Mollie(profileId, options);
+          const mollieInstance = window.Mollie(profileId, memoizedOptions);
           setMollie(mollieInstance);
         } else {
           setError('Mollie script loaded but Mollie constructor not available');
@@ -109,7 +112,7 @@ export const MollieProvider: React.FC<MollieProviderProps> = ({
       script.removeEventListener('error', handleError);
       // Note: We don't remove the script on unmount to avoid breaking other instances
     };
-  }, [profileId, options, scriptUrl]);
+  }, [profileId, memoizedOptions, scriptUrl]);
 
   const contextValue: MollieContextValue = {
     mollie,
