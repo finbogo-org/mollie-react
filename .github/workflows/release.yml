@@ -124,7 +124,8 @@ jobs:
         else
           gh release create "v$VERSION" \
             --title "Release v$VERSION" \
-            --notes-file release_notes.md
+            --notes-file release_notes.md \
+            --draft=false
         fi
         
         # Get release URL
