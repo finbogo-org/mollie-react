@@ -69,8 +69,16 @@ jobs:
     
     - name: Update version from release tag
       run: |
-        # Extract version from GitHub release tag (remove 'v' prefix if present)
-        VERSION=${GITHUB_REF#refs/tags/v}
+        # Extract version from GitHub release tag or workflow input
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          # Manual trigger - use the provided version
+          VERSION="${{ github.event.inputs.version }}"
+          # Remove 'v' prefix if present
+          VERSION=${VERSION#v}
+        else
+          # Release trigger - extract from tag
+          VERSION=${GITHUB_REF#refs/tags/v}
+        fi
         echo "Setting version to: $VERSION"
         npm version $VERSION --no-git-tag-version
     
@@ -84,16 +92,24 @@ jobs:
         # Create a tarball for the release
         npm pack
         
-        # Get the version from the tag
-        VERSION=${GITHUB_REF#refs/tags/v}
+        # Get the version from the tag or workflow input
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+          VERSION=${VERSION#v}
+          TAG_NAME="${{ github.event.inputs.version }}"
+        else
+          VERSION=${GITHUB_REF#refs/tags/v}
+          TAG_NAME="$GITHUB_REF_NAME"
+        fi
+        
         TARBALL_NAME="mollie-react-$VERSION.tgz"
         
         # Rename the tarball
         mv mollie-react-*.tgz "$TARBALL_NAME"
         
         # Upload to the release using gh CLI
-        gh release upload "$GITHUB_REF_NAME" "$TARBALL_NAME"
+        gh release upload "$TAG_NAME" "$TARBALL_NAME"
         
-        echo "✅ Uploaded $TARBALL_NAME to release $GITHUB_REF_NAME"
+        echo "✅ Uploaded $TARBALL_NAME to release $TAG_NAME"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

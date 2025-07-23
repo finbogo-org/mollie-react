@@ -16,6 +16,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: publish
     permissions:
       contents: write
       issues: write
@@ -32,6 +33,7 @@ jobs:
       with:
         node-version: '20.x'
         cache: 'npm'
+        registry-url: 'https://registry.npmjs.org'
     
     - name: Install dependencies
       run: npm ci
@@ -142,3 +144,27 @@ jobs:
         echo "✅ Release v${{ github.event.inputs.version }} created successfully!"
         echo "🔗 Release URL: ${{ steps.create_release.outputs.release_url }}"
         echo "📦 NPM package will be published automatically via the publish workflow"
+
+    - name: Publish to NPM
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    - name: Create and Upload GitHub Release Assets
+      run: |
+        # Create a tarball for the release
+        npm pack
+        
+        VERSION="${{ github.event.inputs.version }}"
+        TARBALL_NAME="mollie-react-$VERSION.tgz"
+        
+        # Rename the tarball
+        mv mollie-react-*.tgz "$TARBALL_NAME"
+        
+        # Upload to the release using gh CLI
+        gh release upload "v$VERSION" "$TARBALL_NAME"
+        
+        echo "✅ Uploaded $TARBALL_NAME to release v$VERSION"
+        echo "🚀 Package published to NPM and release assets uploaded!"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
