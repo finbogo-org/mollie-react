@@ -1,0 +1,127 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version increment type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+      prerelease:
+        description: 'Create a prerelease'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: publish
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: |
+        npm run typecheck
+        npm run build
+        node test-package.js
+    
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+    
+    - name: Bump version
+      id: version
+      run: |
+        if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+          NEW_VERSION=$(npm version pre${{ github.event.inputs.version }} --preid=beta --no-git-tag-version)
+        else
+          NEW_VERSION=$(npm version ${{ github.event.inputs.version }} --no-git-tag-version)
+        fi
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "version_number=${NEW_VERSION#v}" >> $GITHUB_OUTPUT
+    
+    - name: Update CHANGELOG
+      run: |
+        # Create or update CHANGELOG
+        VERSION="${{ steps.version.outputs.version_number }}"
+        DATE=$(date +%Y-%m-%d)
+        
+        # Backup existing changelog if it exists
+        if [ -f CHANGELOG.md ]; then
+          cp CHANGELOG.md CHANGELOG.md.backup
+        fi
+        
+        # Create new changelog entry
+        echo "# Changelog" > CHANGELOG.md.new
+        echo "" >> CHANGELOG.md.new
+        echo "## [$VERSION] - $DATE" >> CHANGELOG.md.new
+        echo "" >> CHANGELOG.md.new
+        echo "### Changed" >> CHANGELOG.md.new
+        echo "- Version bump to $VERSION" >> CHANGELOG.md.new
+        echo "" >> CHANGELOG.md.new
+        
+        # Append existing changelog if it exists
+        if [ -f CHANGELOG.md.backup ]; then
+          # Skip the first line (# Changelog) and append the rest
+          tail -n +2 CHANGELOG.md.backup >> CHANGELOG.md.new
+        fi
+        
+        mv CHANGELOG.md.new CHANGELOG.md
+        rm -f CHANGELOG.md.backup
+    
+    - name: Commit version bump
+      run: |
+        git add package.json package-lock.json CHANGELOG.md
+        git commit -m "chore: bump version to ${{ steps.version.outputs.new_version }}"
+        git push
+    
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.new_version }}
+        release_name: Release ${{ steps.version.outputs.new_version }}
+        body: |
+          ## Changes in ${{ steps.version.outputs.new_version }}
+          
+          This release includes:
+          - Version bump to ${{ steps.version.outputs.version_number }}
+          
+          ### Installation
+          ```bash
+          npm install mollie-react@${{ steps.version.outputs.version_number }}
+          ```
+          
+          ### Full Changelog
+          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for detailed changes.
+        draft: false
+        prerelease: ${{ github.event.inputs.prerelease }}
+    
+    - name: Output release info
+      run: |
+        echo "✅ Release ${{ steps.version.outputs.new_version }} created successfully!"
+        echo "🔗 Release URL: ${{ steps.create_release.outputs.html_url }}"
+        echo "📦 NPM package will be published automatically via the publish workflow"

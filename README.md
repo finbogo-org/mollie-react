@@ -249,13 +249,30 @@ import type {
 } from 'mollie-react';
 ```
 
-## License
-
-MIT
-
 ## Contributing
 
 Please read our contributing guidelines and submit pull requests to help improve this library.
+
+### Development Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Build the package: `npm run build`
+4. Run tests: `npm run test`
+
+### Release Process
+
+This repository uses automated GitHub workflows for releases:
+
+1. **Create Release:** Use the "Release" workflow in GitHub Actions
+2. **Choose Version:** Select patch, minor, or major version increment
+3. **Automatic Publishing:** Package automatically publishes to NPM
+
+See [.github/WORKFLOWS.md](.github/WORKFLOWS.md) for detailed workflow documentation.
+
+## License
+
+MIT
 
 ## Support
 

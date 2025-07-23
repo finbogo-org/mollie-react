@@ -1,0 +1,90 @@
+name: Build and Publish to NPM
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run type checking
+      run: npm run typecheck
+    
+    - name: Build package
+      run: npm run build
+    
+    - name: Test package structure
+      run: node test-package.js
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    environment: publish
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        registry-url: 'https://registry.npmjs.org'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build package
+      run: npm run build
+    
+    - name: Update version from release tag
+      run: |
+        # Extract version from GitHub release tag (remove 'v' prefix if present)
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "Setting version to: $VERSION"
+        npm version $VERSION --no-git-tag-version
+    
+    - name: Publish to NPM
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    
+    - name: Create GitHub Release Assets
+      run: |
+        # Create a tarball for the release
+        npm pack
+        mv mollie-react-*.tgz mollie-react-${{ github.ref_name }}.tgz
+    
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./mollie-react-${{ github.ref_name }}.tgz
+        asset_name: mollie-react-${{ github.ref_name }}.tgz
+        asset_content_type: application/gzip

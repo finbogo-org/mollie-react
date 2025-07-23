@@ -22,7 +22,13 @@
     "build:types": "tsc -p tsconfig.types.json",
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
-    "test": "node test-package.js"
+    "test": "node test-package.js",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build && npm run test",
+    "pack": "npm pack",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version"
   },
   "keywords": [
     "mollie",
