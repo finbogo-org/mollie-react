@@ -92,30 +92,49 @@ jobs:
     
     - name: Create GitHub Release
       id: create_release
-      uses: actions/create-release@v1
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        PRERELEASE="${{ github.event.inputs.prerelease }}"
+        
+        # Create release notes
+        cat > release_notes.md << EOF
+        ## Changes in v$VERSION
+        
+        This release includes:
+        - Release version $VERSION
+        
+        ### Installation
+        \`\`\`bash
+        npm install mollie-react@$VERSION
+        \`\`\`
+        
+        ### Full Changelog
+        See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for detailed changes.
+        EOF
+        
+        # Create release using gh CLI
+        if [ "$PRERELEASE" = "true" ]; then
+          gh release create "v$VERSION" \
+            --title "Release v$VERSION" \
+            --notes-file release_notes.md \
+            --prerelease
+        else
+          gh release create "v$VERSION" \
+            --title "Release v$VERSION" \
+            --notes-file release_notes.md
+        fi
+        
+        # Get release URL
+        RELEASE_URL=$(gh release view "v$VERSION" --json url --jq '.url')
+        echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
+        
+        echo "✅ Release v$VERSION created successfully!"
+        echo "🔗 Release URL: $RELEASE_URL"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ github.event.inputs.version }}
-        release_name: Release v${{ github.event.inputs.version }}
-        body: |
-          ## Changes in v${{ github.event.inputs.version }}
-          
-          This release includes:
-          - Release version ${{ github.event.inputs.version }}
-          
-          ### Installation
-          ```bash
-          npm install mollie-react@${{ github.event.inputs.version }}
-          ```
-          
-          ### Full Changelog
-          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for detailed changes.
-        draft: false
-        prerelease: ${{ github.event.inputs.prerelease }}
     
     - name: Output release info
       run: |
         echo "✅ Release v${{ github.event.inputs.version }} created successfully!"
-        echo "🔗 Release URL: ${{ steps.create_release.outputs.html_url }}"
+        echo "🔗 Release URL: ${{ steps.create_release.outputs.release_url }}"
         echo "📦 NPM package will be published automatically via the publish workflow"

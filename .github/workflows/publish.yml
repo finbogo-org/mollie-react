@@ -73,18 +73,21 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     
-    - name: Create GitHub Release Assets
+    - name: Create and Upload GitHub Release Assets
       run: |
         # Create a tarball for the release
         npm pack
-        mv mollie-react-*.tgz mollie-react-${{ github.ref_name }}.tgz
-    
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
+        
+        # Get the version from the tag
+        VERSION=${GITHUB_REF#refs/tags/v}
+        TARBALL_NAME="mollie-react-$VERSION.tgz"
+        
+        # Rename the tarball
+        mv mollie-react-*.tgz "$TARBALL_NAME"
+        
+        # Upload to the release using gh CLI
+        gh release upload "$GITHUB_REF_NAME" "$TARBALL_NAME"
+        
+        echo "✅ Uploaded $TARBALL_NAME to release $GITHUB_REF_NAME"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./mollie-react-${{ github.ref_name }}.tgz
-        asset_name: mollie-react-${{ github.ref_name }}.tgz
-        asset_content_type: application/gzip
