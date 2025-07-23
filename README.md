@@ -272,7 +272,16 @@ See [.github/WORKFLOWS.md](.github/WORKFLOWS.md) for detailed workflow documenta
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### MIT License Summary
+
+- ✅ **Use** - Use this library in commercial and personal projects
+- ✅ **Modify** - Make changes and customizations
+- ✅ **Distribute** - Share and redistribute the code
+- ✅ **Private Use** - Use in private projects
+- ✅ **Commercial Use** - Use in commercial applications
+- ❗ **Include License** - Include the original license and copyright notice
 
 ## Support
 
